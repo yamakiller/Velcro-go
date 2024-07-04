@@ -148,15 +148,15 @@ func (c *tcpClientHandler) sender() {
 					goto tcp_sender_exit_label
 				}
 
-				c.conn.SetWriteDeadline(time.Now().Add(time.Millisecond * 50))
+				// c.conn.SetWriteDeadline(time.Now().Add(time.Millisecond * 50))
 				if nwrite, err = c.conn.Write(readbytes[offset:]); err != nil {
-					if e, ok := err.(net.Error); ok && e.Timeout() {
-						goto tcp_sender_continue_label
-					}
+					// if e, ok := err.(net.Error); ok && e.Timeout() {
+					// 	goto tcp_sender_continue_label
+					// }
 
 					goto tcp_sender_exit_label
 				}
-			tcp_sender_continue_label:
+			// tcp_sender_continue_label:
 				offset += nwrite
 				if offset == len(readbytes) {
 					break
