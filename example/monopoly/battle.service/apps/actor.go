@@ -156,6 +156,7 @@ func (actor *BattleActor) onEnterBattleSpace(ctx context.Context) (proto.Message
 			Camp:    v.Camp,
 			Ready:   v.Ready,
 			Extends: make(map[string]string),
+			IsRobot: v.IsRobot,
 		}
 
 		for k, v := range v.Extends {
@@ -257,13 +258,11 @@ func (actor *BattleActor) onRequestStartBattleSpace(ctx context.Context) (proto.
 func (actor *BattleActor) onChanggePasswordRequest(ctx context.Context) (proto.Message, error) {
 	request := serve.GetServantClientInfo(ctx).Message().(*mpubs.ChanggePasswordRequest)
 	sender := serve.GetServantClientInfo(ctx).Sender()
-	ok, err := rds.IsMaster(ctx, sender)
-	if err != nil {
+
+	if err := rds.IsMaster(ctx, sender); err != nil {
 		return nil, err
 	}
-	if !ok {
-		return nil, errs.ErrorPermissionsLost
-	}
+
 	if err := rds.ChangeBattleSpacePassword(ctx, request.SpaceID, request.NewPassword); err != nil {
 		return nil, err
 	}
@@ -276,12 +275,8 @@ func (actor *BattleActor) onChanggePasswordRequest(ctx context.Context) (proto.M
 func (actor *BattleActor) onKickUserRequest(ctx context.Context) (proto.Message, error) {
 	request := serve.GetServantClientInfo(ctx).Message().(*mpubs.KickUserRequest)
 	sender := serve.GetServantClientInfo(ctx).Sender()
-	ok, err := rds.IsMaster(ctx, sender)
-	if err != nil {
+	if err := rds.IsMaster(ctx, sender); err != nil {
 		return nil, err
-	}
-	if !ok {
-		return nil, errs.ErrorPermissionsLost
 	}
 	players := rds.GetBattleSpacePlayers(ctx, request.SpaceID)
 
@@ -310,14 +305,10 @@ func (actor *BattleActor) onModifyRoomParametersRequset(ctx context.Context) (pr
 	request := serve.GetServantClientInfo(ctx).Message().(*mpubs.ModifyRoomParametersRequset)
 	sender := serve.GetServantClientInfo(ctx).Sender()
 
-	ok, err := rds.IsMaster(ctx, sender)
-	if err != nil {
-		vlog.Debugf("onModifyRoomParametersRequset IsMaster  %v", err.Error())
+	if err := rds.IsMaster(ctx, sender); err != nil {
 		return nil, err
 	}
-	if !ok {
-		return nil, errs.ErrorPermissionsLost
-	}
+
 	if err := rds.ChangeModifyRoomParameters(ctx, request.SpaceID, request.MapURI, request.MaxCount, request.RoomName, request.Extend); err != nil {
 		vlog.Debugf("onModifyRoomParametersRequset ChangeModifyRoomParameters  %v", err.Error())
 		return nil, err
@@ -422,30 +413,111 @@ func (actor *BattleActor) onUserChatVoiceRequest(ctx context.Context) (proto.Mes
 	return nil, nil
 }
 
+func (actor *BattleActor) onCreateRobotRequest(ctx context.Context) (proto.Message, error) {
+	request := serve.GetServantClientInfo(ctx).Message().(*mpubs.CreateRobotRequest)
+	sender := serve.GetServantClientInfo(ctx).Sender()
+	if err := rds.IsMaster(ctx, sender); err != nil {
+		return nil, err
+	}
+	players := rds.GetBattleSpacePlayers(ctx, request.SpaceId)
+
+	robotid, leaveuid, err := rds.CreateBattleSpaceRobot(ctx, request.SpaceId, request.Display, request.Icon, request.Pos, request.Role, request.Camp, request.Extends)
+	if err != nil {
+		return nil, err
+	}
+
+	if leaveuid != "" {
+		notify := &mpubs.UserExitSpaceNotify{
+			SpaceID: request.SpaceId,
+			Uid:     leaveuid,
+		}
+		for _, v := range players {
+			actor.submitRequestGatewayPush(ctx, v, notify)
+		}
+	}
+
+	{
+		player := &mpubs.BattleSpacePlayer{
+			Uid:     robotid,
+			Icon:    request.Icon,
+			Display: request.Display,
+			Pos:     request.Pos,
+			Role:    request.Role,
+			Camp:    request.Camp,
+			Ready:   true,
+			Extends: make(map[string]string),
+			IsRobot: true,
+		}
+
+		for k, v := range request.Extends {
+			player.Extends[k] = v
+		}
+		notify := &mpubs.EnterBattleSpaceNotify{
+			SpaceId: request.SpaceId,
+			Player:  player,
+		}
+		players = rds.GetBattleSpacePlayers(ctx, request.SpaceId)
+		for _, v := range players {
+			actor.submitRequestGatewayPush(ctx, v, notify)
+		}
+	}
+
+	res := &mpubs.CreateRobotResponse{
+		Res: 0,
+	}
+	return res, nil
+}
+func (actor *BattleActor) onRemoveRobotRequest(ctx context.Context) (proto.Message, error) {
+	request := serve.GetServantClientInfo(ctx).Message().(*mpubs.RemoveRobotRequest)
+	sender := serve.GetServantClientInfo(ctx).Sender()
+
+	if err := rds.IsMaster(ctx, sender); err != nil {
+		return nil, err
+	}
+	if err := rds.RemoveBattleSpaceRobot(ctx, request.SpaceID, request.RobotID); err != nil {
+		return nil, err
+	}
+	players := rds.GetBattleSpacePlayers(ctx, request.SpaceID)
+
+	notify := &mpubs.UserExitSpaceNotify{
+		SpaceID: request.SpaceID,
+		Uid:     request.RobotID,
+	}
+
+	for _, v := range players {
+		actor.submitRequestGatewayPush(ctx, v, notify)
+	}
+
+	res := &mpubs.RemoveRobotResponse{
+		Res: 0,
+	}
+	return res, nil
+}
+
 func (actor *BattleActor) onDissBattleSpaceRequest(ctx context.Context) (proto.Message, error) {
 	request := serve.GetServantClientInfo(ctx).Message().(*mpubs.DissBattleSpaceRequest)
 	sender := serve.GetServantClientInfo(ctx).Sender()
 	vlog.Infof("onDissBattleSpaceRequest spaceid %s  ", request.SpaceId)
 	// request := ctx.Message.(*mprvs.RequestExitBattleSpace)
-	if ok, err := rds.IsMaster(ctx, sender); err != nil {
-		// actor.submitRequestCloseClient(ctx, sender)
+	if err := rds.IsMaster(ctx, sender); err != nil {
 		return nil, err
-	} else if ok {
-		// 房主离开，解散房间
-		players := rds.GetBattleSpacePlayers(ctx, request.SpaceId)
-		if err := rds.DeleteBattleSpace(ctx, sender); err != nil {
-			return nil, nil
-		}
+	}
 
-		res := &mpubs.DissBattleSpaceNotify{
-			SpaceId: request.SpaceId,
-		}
-		for _, v := range players {
-			if !sender.Equal(v) {
-				actor.submitRequestGatewayPush(ctx, v, res)
-			}
+	// 房主离开，解散房间
+	players := rds.GetBattleSpacePlayers(ctx, request.SpaceId)
+	if err := rds.DeleteBattleSpace(ctx, sender); err != nil {
+		return nil, nil
+	}
+
+	notify := &mpubs.DissBattleSpaceNotify{
+		SpaceId: request.SpaceId,
+	}
+	for _, v := range players {
+		if !sender.Equal(v) {
+			actor.submitRequestGatewayPush(ctx, v, notify)
 		}
 	}
+
 	res := &mpubs.DissBattleSpaceResponse{
 		SpaceId: request.SpaceId,
 	}
@@ -456,10 +528,25 @@ func (actor *BattleActor) onRequestExitBattleSpace(ctx context.Context) (proto.M
 	request := serve.GetServantClientInfo(ctx).Message().(*mprvs.RequestExitBattleSpace)
 	sender := serve.GetServantClientInfo(ctx).Sender()
 	// request := ctx.Message.(*mprvs.RequestExitBattleSpace)
-	if ok, err := rds.IsMaster(ctx, sender); err != nil {
-		// actor.submitRequestCloseClient(ctx, sender)
-		vlog.Debugf("onRequestExitBattleSpace error %s", err.Error())
-	} else if ok {
+
+	if err := rds.IsMaster(ctx, sender); err != nil {
+		if err == errs.ErrorPermissionsLost {
+			// 非房主离开，退出房间
+			rds.LeaveBattleSpace(ctx, sender)
+			res := &mpubs.UserExitSpaceNotify{
+				SpaceID: request.BattleSpaceID,
+				Uid:     request.UID,
+			}
+			players := rds.GetBattleSpacePlayers(ctx, request.BattleSpaceID)
+			for _, v := range players {
+				if !sender.Equal(v) {
+					actor.submitRequestGatewayPush(ctx, v, res)
+				}
+			}
+		} else {
+			return nil, err
+		}
+	} else {
 		// 房主离开，解散房间
 		players := rds.GetBattleSpacePlayers(ctx, request.BattleSpaceID)
 		if err := rds.DeleteBattleSpace(ctx, sender); err != nil {
@@ -469,19 +556,6 @@ func (actor *BattleActor) onRequestExitBattleSpace(ctx context.Context) (proto.M
 		res := &mpubs.DissBattleSpaceNotify{
 			SpaceId: request.BattleSpaceID,
 		}
-		for _, v := range players {
-			if !sender.Equal(v) {
-				actor.submitRequestGatewayPush(ctx, v, res)
-			}
-		}
-	} else {
-		// 非房主离开，退出房间
-		rds.LeaveBattleSpace(ctx, sender)
-		res := &mpubs.UserExitSpaceNotify{
-			SpaceID: request.BattleSpaceID,
-			Uid:     request.UID,
-		}
-		players := rds.GetBattleSpacePlayers(ctx, request.BattleSpaceID)
 		for _, v := range players {
 			if !sender.Equal(v) {
 				actor.submitRequestGatewayPush(ctx, v, res)

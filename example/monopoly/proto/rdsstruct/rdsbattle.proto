@@ -12,6 +12,7 @@ message RdsBattleSpacePlayer {
     string camp    = 6;
     bool   ready   = 7;
     map<string,string> extends  = 8;
+    bool isRobot = 9;
 }
 
 message RdsBattleSpaceData{

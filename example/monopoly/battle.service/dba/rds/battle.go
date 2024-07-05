@@ -2,6 +2,8 @@ package rds
 
 import (
 	"context"
+	"fmt"
+	"math/rand"
 	"strings"
 	"time"
 
@@ -550,6 +552,9 @@ func GetBattleSpacePlayers(ctx context.Context, spaceid string) []*network.Clien
 		if v.Uid == "" {
 			continue
 		}
+		if v.IsRobot{
+			continue
+		}
 		cli := GetBattleSpacePlayerClientID(ctx, v.Uid)
 		if cli == nil {
 			continue
@@ -560,29 +565,32 @@ func GetBattleSpacePlayers(ctx context.Context, spaceid string) []*network.Clien
 	return list
 }
 
-func IsMaster(ctx context.Context, clientId *network.ClientID) (bool, error) {
+func IsMaster(ctx context.Context, clientId *network.ClientID) error {
 	player_data, err := GetPlayerData(ctx, clientId)
 	if err != nil {
-		return false, err
+		return err
 	}
 	BattleSpaceId, err := GetPlayerBattleSpaceID(ctx, player_data.UID)
 	if BattleSpaceId == "" || err != nil {
-		return false, errs.ErrorPlayerIsNotInBattleSpace
+		return errs.ErrorPlayerIsNotInBattleSpace
 	}
 
 	space_mutex := sync.NewMutex(rdsconst.GetBattleSpaceLockKey(BattleSpaceId))
 	if err := space_mutex.Lock(); err != nil {
-		return false, err
+		return err
 	}
 
 	battleSpace := &rdsstruct.RdsBattleSpaceData{}
 	if err := client.Get(ctx, rdsconst.GetBattleSpaceOnlineDataKey(BattleSpaceId)).Scan(battleSpace); err != nil {
 		space_mutex.Unlock()
-		return false, err
+		return err
 	}
 	space_mutex.Unlock()
+	if battleSpace.SpaceMasterUid == player_data.UID {
+		return nil
+	}
 
-	return battleSpace.SpaceMasterUid == player_data.UID, nil
+	return errs.ErrorPermissionsLost
 }
 
 func IsBattleSpaceMaster(ctx context.Context, clientId *network.ClientID, spaceid string) error {
@@ -612,7 +620,7 @@ func IsBattleSpaceMaster(ctx context.Context, clientId *network.ClientID, spacei
 		return nil
 	}
 
-	return errs.ErrorPlayerIsNotInBattleSpace
+	return errs.ErrorPermissionsLost
 }
 
 func ClearBattleSpace(ctx context.Context) {
@@ -686,4 +694,118 @@ func SubscribeBattleSpaceTime(ctx context.Context) *redis.PubSub {
 		}
 	}()
 	return pubsub
+}
+
+func CreateBattleSpaceRobot(ctx context.Context,
+	spaceid string,
+	display string,
+	icon string,
+	pos int32,
+	role string,
+	camp string,
+	extends map[string]string) (string,string, error) {
+
+	space_mutex := sync.NewMutex(rdsconst.GetBattleSpaceLockKey(spaceid))
+	if err := space_mutex.Lock(); err != nil {
+		return "", "", err
+	}
+	defer space_mutex.Unlock()
+
+	battleSpace := &rdsstruct.RdsBattleSpaceData{}
+	if err := client.Get(ctx, rdsconst.GetBattleSpaceOnlineDataKey(spaceid)).Scan(battleSpace); err != nil {
+		return "","", err
+	}
+	robotid := Generate17BitID()
+	if pos >=int32(len(battleSpace.SpacePlayers)) {
+		return "","", errs.ErrorPlayerRepeatOperation
+	}
+
+	if battleSpace.SpacePlayers[pos].Uid == battleSpace.SpaceMasterUid{
+		return "","", errs.ErrorPlayerRepeatOperation
+	}
+	var leaveuid  string = ""
+	if battleSpace.SpacePlayers[pos].Uid != ""{
+		leaveuid = battleSpace.SpacePlayers[pos].Uid
+	}
+	battleSpace.SpacePlayers[pos] = &mrdsstruct.RdsBattleSpacePlayer{
+		Uid:     robotid,
+		Display: display,
+		Icon:    icon,
+		Camp:    camp,
+		Role:    role,
+		Ready:   true,
+		Pos:     pos,
+		IsRobot: true,
+		Extends: make(map[string]string),
+	}
+	
+	for k, v := range extends {
+		battleSpace.SpacePlayers[pos].Extends[k] = v
+	}
+
+	expire, err := client.TTL(ctx, rdsconst.GetBattleSpaceOnlineDataKey(spaceid)).Result()
+	if err != nil {
+		return "","", err
+	}
+	pipe := client.TxPipeline()
+	defer pipe.Close()
+	if leaveuid != ""{
+		pipe.Del(ctx, rdsconst.GetPlayerBattleSpaceIDKey(leaveuid))
+		pipe.Del(ctx, rdsconst.GetPlayerBattleSpaceIDAndUIDKey(leaveuid, spaceid))
+	}
+
+	pipe.Set(ctx, rdsconst.GetBattleSpaceOnlineDataKey(spaceid), battleSpace, expire)
+
+	_, err = pipe.Exec(ctx)
+	if err != nil {
+		pipe.Discard()
+		return "","", err
+	}
+	return robotid,leaveuid, err
+}
+
+func RemoveBattleSpaceRobot(ctx context.Context, spaceid string, robotid string) error{
+	space_mutex := sync.NewMutex(rdsconst.GetBattleSpaceLockKey(spaceid))
+	if err := space_mutex.Lock(); err != nil {
+		return err
+	}
+	defer space_mutex.Unlock()
+	battleSpace := &rdsstruct.RdsBattleSpaceData{}
+	if err := client.Get(ctx, rdsconst.GetBattleSpaceOnlineDataKey(spaceid)).Scan(battleSpace); err != nil {
+		return err
+	}
+	for i, v := range battleSpace.SpacePlayers {
+		if v.Uid == robotid {
+			if !v.IsRobot{
+				return errs.ErrorPlayerRepeatOperation
+			}
+			battleSpace.SpacePlayers[i] = nil
+			break
+		}
+	}
+	expire, err := client.TTL(ctx, rdsconst.GetBattleSpaceOnlineDataKey(spaceid)).Result()
+	if err != nil {
+		return err
+	}
+	pipe := client.TxPipeline()
+	defer pipe.Close()
+	pipe.Set(ctx, rdsconst.GetBattleSpaceOnlineDataKey(spaceid), battleSpace, expire)
+	_, err = pipe.Exec(ctx)
+	if err != nil {
+		pipe.Discard()
+		return err
+	}
+	return nil
+}
+
+func Generate17BitID() string {
+	// 使用当前时间作为基础
+	currentTime := time.Now().UnixNano() / 1e6 // 毫秒级时间戳
+
+	// 生成随机数部分
+	ran :=rand.New(rand.NewSource(time.Now().UnixNano())) 
+	randomPart := ran.Intn(9999999) // 生成7位数的随机数
+
+	// 格式化为17位字符串
+	return fmt.Sprintf("%013d%07d", currentTime, randomPart)
 }

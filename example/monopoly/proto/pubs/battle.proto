@@ -46,6 +46,7 @@ message BattleSpacePlayer {
     string camp    = 6;
     bool   ready   = 7;
     map<string,string> extends  = 8;
+    bool isRobot = 9;
 }
 
 message BattleSpaceData {
@@ -215,9 +216,33 @@ message UserChatVoiceRequest{
     int32 voiceID = 2;
 }
 // 角色发送语音通知
-
 message UserChatVoiceNotify{
     string spaceID = 1;
     int32 voiceID = 2;
     string uid = 3;
+}
+
+//创建机器人
+message CreateRobotRequest{
+    string spaceId = 1;
+    string display = 2;
+    string icon    = 3;
+    int32  pos     = 4;
+    string role    = 5;
+    string camp    = 6;
+    map<string,string> extends  = 7;
+}
+
+message CreateRobotResponse{
+    int32 res = 1;
+}
+
+//移除机器人
+message RemoveRobotRequest{
+    string spaceID = 1;
+    string robotID = 2;
+}
+
+message RemoveRobotResponse{
+    int32 res = 1;
 }

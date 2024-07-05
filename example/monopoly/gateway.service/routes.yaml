@@ -41,4 +41,6 @@ routes:
       - pubs.ModifyUserRoleRequest
       - pubs.ModifyUserCampRequest
       - pubs.UserChatVoiceRequest
+      - pubs.CreateRobotRequest
+      - pubs.RemoveRobotRequest
 

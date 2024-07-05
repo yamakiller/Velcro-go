@@ -80,6 +80,8 @@ func (bs *battleService) newBattleActor(conn *serve.ServantClientConn) serve.Ser
 	conn.Register(&mpubs.ModifyUserRoleRequest{}, actor.onModifyUserRoleRequest)
 	conn.Register(&mpubs.ModifyUserCampRequest{}, actor.onModifyUserCampRequest)
 	conn.Register(&mpubs.UserChatVoiceRequest{}, actor.onUserChatVoiceRequest)
+	conn.Register(&mpubs.CreateRobotRequest{}, actor.onCreateRobotRequest)
+	conn.Register(&mpubs.RemoveRobotRequest{}, actor.onRemoveRobotRequest)
 
 	conn.Register(&mprvs.RequestExitBattleSpace{}, actor.onRequestExitBattleSpace)
 	return actor

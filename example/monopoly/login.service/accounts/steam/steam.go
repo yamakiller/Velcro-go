@@ -35,7 +35,7 @@ func (ls *SteamSign) In(ctx context.Context, token string) (*sign.Account, error
 			return nil, errs.ErrSignAccountOrPass
 		}
 		result := &sign.Account{
-			UID:         fmt.Sprintf("s%s", accounts[1]),
+			UID:         accounts[1],
 			DisplayName: fmt.Sprintf("steam%s", accounts[1]),
 			Rule:        3,
 			Externs:     map[string]string{},
@@ -49,7 +49,7 @@ func (ls *SteamSign) In(ctx context.Context, token string) (*sign.Account, error
 		}
 
 		result := &sign.Account{
-			UID:         fmt.Sprintf("t%d", sn),
+			UID:         accounts[1],
 			DisplayName: fmt.Sprintf("米奇%d", sn),
 			Rule:        3,
 			Externs:     map[string]string{},
