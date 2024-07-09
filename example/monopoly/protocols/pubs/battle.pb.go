@@ -2490,6 +2490,345 @@ func (x *RemoveRobotResponse) GetRes() int32 {
 	return 0
 }
 
+type ModifyRobotRoleRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	SpaceID string `protobuf:"bytes,1,opt,name=spaceID,proto3" json:"spaceID,omitempty"`
+	RobotID string `protobuf:"bytes,2,opt,name=robotID,proto3" json:"robotID,omitempty"`
+	Role    string `protobuf:"bytes,3,opt,name=role,proto3" json:"role,omitempty"`
+}
+
+func (x *ModifyRobotRoleRequest) Reset() {
+	*x = ModifyRobotRoleRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_battle_proto_msgTypes[40]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ModifyRobotRoleRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ModifyRobotRoleRequest) ProtoMessage() {}
+
+func (x *ModifyRobotRoleRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_battle_proto_msgTypes[40]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ModifyRobotRoleRequest.ProtoReflect.Descriptor instead.
+func (*ModifyRobotRoleRequest) Descriptor() ([]byte, []int) {
+	return file_battle_proto_rawDescGZIP(), []int{40}
+}
+
+func (x *ModifyRobotRoleRequest) GetSpaceID() string {
+	if x != nil {
+		return x.SpaceID
+	}
+	return ""
+}
+
+func (x *ModifyRobotRoleRequest) GetRobotID() string {
+	if x != nil {
+		return x.RobotID
+	}
+	return ""
+}
+
+func (x *ModifyRobotRoleRequest) GetRole() string {
+	if x != nil {
+		return x.Role
+	}
+	return ""
+}
+
+type ModifyRobotRoleResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Res int32 `protobuf:"varint,1,opt,name=res,proto3" json:"res,omitempty"`
+}
+
+func (x *ModifyRobotRoleResponse) Reset() {
+	*x = ModifyRobotRoleResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_battle_proto_msgTypes[41]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ModifyRobotRoleResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ModifyRobotRoleResponse) ProtoMessage() {}
+
+func (x *ModifyRobotRoleResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_battle_proto_msgTypes[41]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ModifyRobotRoleResponse.ProtoReflect.Descriptor instead.
+func (*ModifyRobotRoleResponse) Descriptor() ([]byte, []int) {
+	return file_battle_proto_rawDescGZIP(), []int{41}
+}
+
+func (x *ModifyRobotRoleResponse) GetRes() int32 {
+	if x != nil {
+		return x.Res
+	}
+	return 0
+}
+
+type ModifyRobotCampRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	SpaceID string `protobuf:"bytes,1,opt,name=spaceID,proto3" json:"spaceID,omitempty"`
+	RobotID string `protobuf:"bytes,2,opt,name=robotID,proto3" json:"robotID,omitempty"`
+	Camp    string `protobuf:"bytes,3,opt,name=camp,proto3" json:"camp,omitempty"`
+}
+
+func (x *ModifyRobotCampRequest) Reset() {
+	*x = ModifyRobotCampRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_battle_proto_msgTypes[42]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ModifyRobotCampRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ModifyRobotCampRequest) ProtoMessage() {}
+
+func (x *ModifyRobotCampRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_battle_proto_msgTypes[42]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ModifyRobotCampRequest.ProtoReflect.Descriptor instead.
+func (*ModifyRobotCampRequest) Descriptor() ([]byte, []int) {
+	return file_battle_proto_rawDescGZIP(), []int{42}
+}
+
+func (x *ModifyRobotCampRequest) GetSpaceID() string {
+	if x != nil {
+		return x.SpaceID
+	}
+	return ""
+}
+
+func (x *ModifyRobotCampRequest) GetRobotID() string {
+	if x != nil {
+		return x.RobotID
+	}
+	return ""
+}
+
+func (x *ModifyRobotCampRequest) GetCamp() string {
+	if x != nil {
+		return x.Camp
+	}
+	return ""
+}
+
+type ModifyRobotCampResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Res int32 `protobuf:"varint,1,opt,name=res,proto3" json:"res,omitempty"`
+}
+
+func (x *ModifyRobotCampResponse) Reset() {
+	*x = ModifyRobotCampResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_battle_proto_msgTypes[43]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ModifyRobotCampResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ModifyRobotCampResponse) ProtoMessage() {}
+
+func (x *ModifyRobotCampResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_battle_proto_msgTypes[43]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ModifyRobotCampResponse.ProtoReflect.Descriptor instead.
+func (*ModifyRobotCampResponse) Descriptor() ([]byte, []int) {
+	return file_battle_proto_rawDescGZIP(), []int{43}
+}
+
+func (x *ModifyRobotCampResponse) GetRes() int32 {
+	if x != nil {
+		return x.Res
+	}
+	return 0
+}
+
+//角色发送聊天文字请求
+type UserChatTextRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	SpaceID  string `protobuf:"bytes,1,opt,name=spaceID,proto3" json:"spaceID,omitempty"`
+	ChatText string `protobuf:"bytes,2,opt,name=chatText,proto3" json:"chatText,omitempty"`
+}
+
+func (x *UserChatTextRequest) Reset() {
+	*x = UserChatTextRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_battle_proto_msgTypes[44]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *UserChatTextRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UserChatTextRequest) ProtoMessage() {}
+
+func (x *UserChatTextRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_battle_proto_msgTypes[44]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UserChatTextRequest.ProtoReflect.Descriptor instead.
+func (*UserChatTextRequest) Descriptor() ([]byte, []int) {
+	return file_battle_proto_rawDescGZIP(), []int{44}
+}
+
+func (x *UserChatTextRequest) GetSpaceID() string {
+	if x != nil {
+		return x.SpaceID
+	}
+	return ""
+}
+
+func (x *UserChatTextRequest) GetChatText() string {
+	if x != nil {
+		return x.ChatText
+	}
+	return ""
+}
+
+type UserChatTextNotify struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	SpaceID  string `protobuf:"bytes,1,opt,name=spaceID,proto3" json:"spaceID,omitempty"`
+	ChatText string `protobuf:"bytes,2,opt,name=chatText,proto3" json:"chatText,omitempty"`
+	Uid      string `protobuf:"bytes,3,opt,name=uid,proto3" json:"uid,omitempty"`
+}
+
+func (x *UserChatTextNotify) Reset() {
+	*x = UserChatTextNotify{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_battle_proto_msgTypes[45]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *UserChatTextNotify) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UserChatTextNotify) ProtoMessage() {}
+
+func (x *UserChatTextNotify) ProtoReflect() protoreflect.Message {
+	mi := &file_battle_proto_msgTypes[45]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UserChatTextNotify.ProtoReflect.Descriptor instead.
+func (*UserChatTextNotify) Descriptor() ([]byte, []int) {
+	return file_battle_proto_rawDescGZIP(), []int{45}
+}
+
+func (x *UserChatTextNotify) GetSpaceID() string {
+	if x != nil {
+		return x.SpaceID
+	}
+	return ""
+}
+
+func (x *UserChatTextNotify) GetChatText() string {
+	if x != nil {
+		return x.ChatText
+	}
+	return ""
+}
+
+func (x *UserChatTextNotify) GetUid() string {
+	if x != nil {
+		return x.Uid
+	}
+	return ""
+}
+
 var File_battle_proto protoreflect.FileDescriptor
 
 var file_battle_proto_rawDesc = []byte{
@@ -2751,8 +3090,37 @@ var file_battle_proto_rawDesc = []byte{
 	0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x72, 0x6f, 0x62, 0x6f, 0x74, 0x49, 0x44, 0x22, 0x27,
 	0x0a, 0x13, 0x52, 0x65, 0x6d, 0x6f, 0x76, 0x65, 0x52, 0x6f, 0x62, 0x6f, 0x74, 0x52, 0x65, 0x73,
 	0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x10, 0x0a, 0x03, 0x72, 0x65, 0x73, 0x18, 0x01, 0x20, 0x01,
-	0x28, 0x05, 0x52, 0x03, 0x72, 0x65, 0x73, 0x42, 0x08, 0x5a, 0x06, 0x2e, 0x3b, 0x70, 0x75, 0x62,
-	0x73, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x28, 0x05, 0x52, 0x03, 0x72, 0x65, 0x73, 0x22, 0x60, 0x0a, 0x16, 0x4d, 0x6f, 0x64, 0x69, 0x66,
+	0x79, 0x52, 0x6f, 0x62, 0x6f, 0x74, 0x52, 0x6f, 0x6c, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73,
+	0x74, 0x12, 0x18, 0x0a, 0x07, 0x73, 0x70, 0x61, 0x63, 0x65, 0x49, 0x44, 0x18, 0x01, 0x20, 0x01,
+	0x28, 0x09, 0x52, 0x07, 0x73, 0x70, 0x61, 0x63, 0x65, 0x49, 0x44, 0x12, 0x18, 0x0a, 0x07, 0x72,
+	0x6f, 0x62, 0x6f, 0x74, 0x49, 0x44, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x72, 0x6f,
+	0x62, 0x6f, 0x74, 0x49, 0x44, 0x12, 0x12, 0x0a, 0x04, 0x72, 0x6f, 0x6c, 0x65, 0x18, 0x03, 0x20,
+	0x01, 0x28, 0x09, 0x52, 0x04, 0x72, 0x6f, 0x6c, 0x65, 0x22, 0x2b, 0x0a, 0x17, 0x4d, 0x6f, 0x64,
+	0x69, 0x66, 0x79, 0x52, 0x6f, 0x62, 0x6f, 0x74, 0x52, 0x6f, 0x6c, 0x65, 0x52, 0x65, 0x73, 0x70,
+	0x6f, 0x6e, 0x73, 0x65, 0x12, 0x10, 0x0a, 0x03, 0x72, 0x65, 0x73, 0x18, 0x01, 0x20, 0x01, 0x28,
+	0x05, 0x52, 0x03, 0x72, 0x65, 0x73, 0x22, 0x60, 0x0a, 0x16, 0x4d, 0x6f, 0x64, 0x69, 0x66, 0x79,
+	0x52, 0x6f, 0x62, 0x6f, 0x74, 0x43, 0x61, 0x6d, 0x70, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74,
+	0x12, 0x18, 0x0a, 0x07, 0x73, 0x70, 0x61, 0x63, 0x65, 0x49, 0x44, 0x18, 0x01, 0x20, 0x01, 0x28,
+	0x09, 0x52, 0x07, 0x73, 0x70, 0x61, 0x63, 0x65, 0x49, 0x44, 0x12, 0x18, 0x0a, 0x07, 0x72, 0x6f,
+	0x62, 0x6f, 0x74, 0x49, 0x44, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x72, 0x6f, 0x62,
+	0x6f, 0x74, 0x49, 0x44, 0x12, 0x12, 0x0a, 0x04, 0x63, 0x61, 0x6d, 0x70, 0x18, 0x03, 0x20, 0x01,
+	0x28, 0x09, 0x52, 0x04, 0x63, 0x61, 0x6d, 0x70, 0x22, 0x2b, 0x0a, 0x17, 0x4d, 0x6f, 0x64, 0x69,
+	0x66, 0x79, 0x52, 0x6f, 0x62, 0x6f, 0x74, 0x43, 0x61, 0x6d, 0x70, 0x52, 0x65, 0x73, 0x70, 0x6f,
+	0x6e, 0x73, 0x65, 0x12, 0x10, 0x0a, 0x03, 0x72, 0x65, 0x73, 0x18, 0x01, 0x20, 0x01, 0x28, 0x05,
+	0x52, 0x03, 0x72, 0x65, 0x73, 0x22, 0x4b, 0x0a, 0x13, 0x55, 0x73, 0x65, 0x72, 0x43, 0x68, 0x61,
+	0x74, 0x54, 0x65, 0x78, 0x74, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x18, 0x0a, 0x07,
+	0x73, 0x70, 0x61, 0x63, 0x65, 0x49, 0x44, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x73,
+	0x70, 0x61, 0x63, 0x65, 0x49, 0x44, 0x12, 0x1a, 0x0a, 0x08, 0x63, 0x68, 0x61, 0x74, 0x54, 0x65,
+	0x78, 0x74, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x08, 0x63, 0x68, 0x61, 0x74, 0x54, 0x65,
+	0x78, 0x74, 0x22, 0x5c, 0x0a, 0x12, 0x55, 0x73, 0x65, 0x72, 0x43, 0x68, 0x61, 0x74, 0x54, 0x65,
+	0x78, 0x74, 0x4e, 0x6f, 0x74, 0x69, 0x66, 0x79, 0x12, 0x18, 0x0a, 0x07, 0x73, 0x70, 0x61, 0x63,
+	0x65, 0x49, 0x44, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x73, 0x70, 0x61, 0x63, 0x65,
+	0x49, 0x44, 0x12, 0x1a, 0x0a, 0x08, 0x63, 0x68, 0x61, 0x74, 0x54, 0x65, 0x78, 0x74, 0x18, 0x02,
+	0x20, 0x01, 0x28, 0x09, 0x52, 0x08, 0x63, 0x68, 0x61, 0x74, 0x54, 0x65, 0x78, 0x74, 0x12, 0x10,
+	0x0a, 0x03, 0x75, 0x69, 0x64, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x52, 0x03, 0x75, 0x69, 0x64,
+	0x42, 0x08, 0x5a, 0x06, 0x2e, 0x3b, 0x70, 0x75, 0x62, 0x73, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74,
+	0x6f, 0x33,
 }
 
 var (
@@ -2767,7 +3135,7 @@ func file_battle_proto_rawDescGZIP() []byte {
 	return file_battle_proto_rawDescData
 }
 
-var file_battle_proto_msgTypes = make([]protoimpl.MessageInfo, 43)
+var file_battle_proto_msgTypes = make([]protoimpl.MessageInfo, 49)
 var file_battle_proto_goTypes = []interface{}{
 	(*CreateBattleSpace)(nil),            // 0: pubs.CreateBattleSpace
 	(*CreateBattleSpaceResp)(nil),        // 1: pubs.CreateBattleSpaceResp
@@ -2809,19 +3177,25 @@ var file_battle_proto_goTypes = []interface{}{
 	(*CreateRobotResponse)(nil),          // 37: pubs.CreateRobotResponse
 	(*RemoveRobotRequest)(nil),           // 38: pubs.RemoveRobotRequest
 	(*RemoveRobotResponse)(nil),          // 39: pubs.RemoveRobotResponse
-	nil,                                  // 40: pubs.BattleSpacePlayer.ExtendsEntry
-	nil,                                  // 41: pubs.RequsetStartBattleSpaceResp.TokensEntry
-	nil,                                  // 42: pubs.CreateRobotRequest.ExtendsEntry
+	(*ModifyRobotRoleRequest)(nil),       // 40: pubs.ModifyRobotRoleRequest
+	(*ModifyRobotRoleResponse)(nil),      // 41: pubs.ModifyRobotRoleResponse
+	(*ModifyRobotCampRequest)(nil),       // 42: pubs.ModifyRobotCampRequest
+	(*ModifyRobotCampResponse)(nil),      // 43: pubs.ModifyRobotCampResponse
+	(*UserChatTextRequest)(nil),          // 44: pubs.UserChatTextRequest
+	(*UserChatTextNotify)(nil),           // 45: pubs.UserChatTextNotify
+	nil,                                  // 46: pubs.BattleSpacePlayer.ExtendsEntry
+	nil,                                  // 47: pubs.RequsetStartBattleSpaceResp.TokensEntry
+	nil,                                  // 48: pubs.CreateRobotRequest.ExtendsEntry
 }
 var file_battle_proto_depIdxs = []int32{
 	2,  // 0: pubs.BattleSpaceDataSimple.players:type_name -> pubs.BattleSpacePlayerSimple
-	40, // 1: pubs.BattleSpacePlayer.extends:type_name -> pubs.BattleSpacePlayer.ExtendsEntry
+	46, // 1: pubs.BattleSpacePlayer.extends:type_name -> pubs.BattleSpacePlayer.ExtendsEntry
 	4,  // 2: pubs.BattleSpaceData.players:type_name -> pubs.BattleSpacePlayer
 	3,  // 3: pubs.GetBattleSpaceListResp.spaces:type_name -> pubs.BattleSpaceDataSimple
 	5,  // 4: pubs.EnterBattleSpaceResp.space:type_name -> pubs.BattleSpaceData
 	4,  // 5: pubs.EnterBattleSpaceNotify.player:type_name -> pubs.BattleSpacePlayer
-	41, // 6: pubs.RequsetStartBattleSpaceResp.tokens:type_name -> pubs.RequsetStartBattleSpaceResp.TokensEntry
-	42, // 7: pubs.CreateRobotRequest.extends:type_name -> pubs.CreateRobotRequest.ExtendsEntry
+	47, // 6: pubs.RequsetStartBattleSpaceResp.tokens:type_name -> pubs.RequsetStartBattleSpaceResp.TokensEntry
+	48, // 7: pubs.CreateRobotRequest.extends:type_name -> pubs.CreateRobotRequest.ExtendsEntry
 	8,  // [8:8] is the sub-list for method output_type
 	8,  // [8:8] is the sub-list for method input_type
 	8,  // [8:8] is the sub-list for extension type_name
@@ -3315,6 +3689,78 @@ func file_battle_proto_init() {
 				return nil
 			}
 		}
+		file_battle_proto_msgTypes[40].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ModifyRobotRoleRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_battle_proto_msgTypes[41].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ModifyRobotRoleResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_battle_proto_msgTypes[42].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ModifyRobotCampRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_battle_proto_msgTypes[43].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ModifyRobotCampResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_battle_proto_msgTypes[44].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*UserChatTextRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_battle_proto_msgTypes[45].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*UserChatTextNotify); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -3322,7 +3768,7 @@ func file_battle_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_battle_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   43,
+			NumMessages:   49,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

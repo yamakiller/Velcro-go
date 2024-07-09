@@ -492,7 +492,7 @@ func LeaveBattleSpace(ctx context.Context, clientId *network.ClientID) {
 
 	for i, v := range battleSpace.SpacePlayers {
 		if v.Uid == player_data.UID {
-			battleSpace.SpacePlayers[i] = nil
+			battleSpace.SpacePlayers[i] = &mrdsstruct.RdsBattleSpacePlayer{}
 			break
 		}
 	}
@@ -779,7 +779,7 @@ func RemoveBattleSpaceRobot(ctx context.Context, spaceid string, robotid string)
 			if !v.IsRobot{
 				return errs.ErrorPlayerRepeatOperation
 			}
-			battleSpace.SpacePlayers[i] = nil
+			battleSpace.SpacePlayers[i] = &mrdsstruct.RdsBattleSpacePlayer{}
 			break
 		}
 	}

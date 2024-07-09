@@ -493,7 +493,78 @@ func (actor *BattleActor) onRemoveRobotRequest(ctx context.Context) (proto.Messa
 	}
 	return res, nil
 }
+func (actor *BattleActor)onModifyRobotRoleRequest(ctx context.Context) (proto.Message, error){
+	request := serve.GetServantClientInfo(ctx).Message().(*mpubs.ModifyRobotRoleRequest)
+	sender := serve.GetServantClientInfo(ctx).Sender()
+	if err := rds.IsMaster(ctx, sender); err != nil {
+		return nil, err
+	}
+	if err := rds.ModifyUserRole(ctx, request.SpaceID, request.RobotID, request.Role); err != nil {
+		return nil, err
+	}
+	players := rds.GetBattleSpacePlayers(ctx, request.SpaceID)
+	notify := &mpubs.ModifyUserRoleNotify{
+		SpaceID: request.SpaceID,
+		Uid:     request.RobotID,
+		Role:    request.Role,
+	}
 
+	for _, v := range players {
+		actor.submitRequestGatewayPush(ctx, v, notify)
+	}
+
+	res := &mpubs.ModifyRobotRoleResponse{
+		Res: 0,
+	}
+	return res, nil
+
+}
+func(actor *BattleActor) onModifyRobotCampRequest(ctx context.Context) (proto.Message, error){
+	request := serve.GetServantClientInfo(ctx).Message().(*mpubs.ModifyRobotCampRequest)
+	sender := serve.GetServantClientInfo(ctx).Sender()
+	if err := rds.IsMaster(ctx, sender); err != nil {
+		return nil, err
+	}
+	if err := rds.ModifyUserCamp(ctx, request.SpaceID, request.RobotID, request.Camp); err != nil {
+		return nil, err
+	}
+	players := rds.GetBattleSpacePlayers(ctx, request.SpaceID)
+	notify := &mpubs.ModifyUserCampNotify{
+		SpaceID: request.SpaceID,
+		Uid:     request.RobotID,
+		Camp:    request.Camp,
+	}
+
+	for _, v := range players {
+		actor.submitRequestGatewayPush(ctx, v, notify)
+	}
+
+	res := &mpubs.ModifyRobotCampResponse{
+		Res: 0,
+	}
+	return res, nil
+}
+
+func (actor *BattleActor) onUserChatTextRequest(ctx context.Context) (proto.Message, error){
+	request := serve.GetServantClientInfo(ctx).Message().(*mpubs.UserChatTextRequest)
+	sender := serve.GetServantClientInfo(ctx).Sender()
+
+	player_data, err := rds.GetPlayerData(ctx, sender)
+	if err != nil {
+		return nil, err
+	}
+	players := rds.GetBattleSpacePlayers(ctx, request.SpaceID)
+	notify := &mpubs.UserChatTextNotify{
+		SpaceID: request.SpaceID,
+		Uid:     player_data.UID,
+		ChatText: request.ChatText,
+	}
+
+	for _, v := range players {
+		actor.submitRequestGatewayPush(ctx, v, notify)
+	}
+	return nil, nil
+}
 func (actor *BattleActor) onDissBattleSpaceRequest(ctx context.Context) (proto.Message, error) {
 	request := serve.GetServantClientInfo(ctx).Message().(*mpubs.DissBattleSpaceRequest)
 	sender := serve.GetServantClientInfo(ctx).Sender()

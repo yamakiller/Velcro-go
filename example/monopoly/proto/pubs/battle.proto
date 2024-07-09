@@ -246,3 +246,33 @@ message RemoveRobotRequest{
 message RemoveRobotResponse{
     int32 res = 1;
 }
+
+message ModifyRobotRoleRequest{
+    string spaceID = 1;
+    string robotID = 2;
+    string role = 3;
+}
+
+message ModifyRobotRoleResponse{
+    int32 res = 1;
+}
+
+message ModifyRobotCampRequest{
+    string spaceID = 1;
+    string robotID = 2;
+    string camp = 3;
+}
+
+message ModifyRobotCampResponse{
+    int32 res = 1;
+}
+//角色发送聊天文字请求
+message UserChatTextRequest{
+    string spaceID = 1;
+    string chatText = 2;
+}
+message UserChatTextNotify{
+    string spaceID = 1;
+    string chatText = 2;
+    string uid = 3;
+}
