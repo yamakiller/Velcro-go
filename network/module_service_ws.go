@@ -10,6 +10,7 @@ import (
 	"github.com/yamakiller/velcro-go/gofunc"
 	"github.com/yamakiller/velcro-go/utils/circbuf"
 	"github.com/yamakiller/velcro-go/vlog"
+	"github.com/rs/cors"
 )
 
 func newWSNetworkServerModule(system *NetworkSystem) *wsNetworkServerModule {
@@ -31,7 +32,12 @@ type wsNetworkServerModule struct {
 }
 
 func (t *wsNetworkServerModule) Open(addr string) error {
-	t.server = &http.Server{Addr: addr, Handler: t}
+	c := cors.New(cors.Options{
+        AllowedOrigins: []string{"*"},
+        AllowCredentials: true,
+    })
+    handler := c.Handler(t)
+	t.server = &http.Server{Addr: addr, Handler: handler}
 	gofunc.GoFunc(context.Background(), func() {
 		vlog.Fatalf("VELCRO: network server listen failed, addr=%s error=%s", addr, t.server.ListenAndServe())
 	})
@@ -52,9 +58,9 @@ func (t *wsNetworkServerModule) ServeHTTP(w http.ResponseWriter, r *http.Request
 		vlog.Errorf("ws upgrade: %v", err.Error())
 		return
 	}
-	defer conn.Close()
 	//新建客户端
 	if err = t.spawn(conn); err != nil {
+		conn.Close()
 		return
 	}
 }

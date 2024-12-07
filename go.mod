@@ -16,6 +16,7 @@ require (
 	github.com/orcaman/concurrent-map v1.0.0
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.17.0
+	github.com/rs/cors v1.11.1
 	github.com/starwander/GoFibonacciHeap v0.0.0-20190508061137-ba2e4f01000a
 	github.com/twmb/murmur3 v1.1.8
 	go.opentelemetry.io/otel v1.21.0
