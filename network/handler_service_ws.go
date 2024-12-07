@@ -8,16 +8,17 @@ import (
 	sync "sync"
 	"time"
 
+	"github.com/gorilla/websocket"
 	"github.com/yamakiller/velcro-go/gofunc"
 	"github.com/yamakiller/velcro-go/utils/circbuf"
 	"github.com/yamakiller/velcro-go/vlog"
 )
 
-var _ Handler = &tcpClientHandler{}
+var _ Handler = &wsClientHandler{}
 
 // ClientHandler TCP服务客户端处理程序
-type tcpClientHandler struct {
-	conn           net.Conn
+type wsClientHandler struct {
+	conn           *websocket.Conn
 	sendbox        *circbuf.LinkBuffer
 	sendcond       *sync.Cond
 	mailbox        chan interface{}
@@ -31,7 +32,7 @@ type tcpClientHandler struct {
 	ClientHandler
 }
 
-func (c *tcpClientHandler) start() {
+func (c *wsClientHandler) start() {
 	c.refdone.Add(3)
 	c.done.Add(2)
 
@@ -50,7 +51,7 @@ func (c *tcpClientHandler) start() {
 		gofunc.NewBasicInfo("guardian", c.invoker.invokerEscalateFailure))
 }
 
-func (c *tcpClientHandler) PostMessage(b []byte) error {
+func (c *wsClientHandler) PostMessage(b []byte) error {
 	c.sendcond.L.Lock()
 	if c.isStopped() {
 		c.sendcond.L.Unlock()
@@ -66,11 +67,11 @@ func (c *tcpClientHandler) PostMessage(b []byte) error {
 	return nil
 }
 
-func (c *tcpClientHandler) PostToMessage(b []byte, target net.Addr) error {
+func (c *wsClientHandler) PostToMessage(b []byte, target net.Addr) error {
 	return errors.New("client: undefine post to message")
 }
 
-func (c *tcpClientHandler) Close() {
+func (c *wsClientHandler) Close() {
 	c.sendcond.L.Lock()
 	if c.isStopped() {
 		c.sendcond.L.Unlock()
@@ -85,7 +86,7 @@ func (c *tcpClientHandler) Close() {
 
 }
 
-func (c *tcpClientHandler) isStopped() bool {
+func (c *wsClientHandler) isStopped() bool {
 	select {
 	case <-c.stopper:
 		return true
@@ -94,7 +95,7 @@ func (c *tcpClientHandler) isStopped() bool {
 	}
 }
 
-func (c *tcpClientHandler) sender() {
+func (c *wsClientHandler) sender() {
 	defer func() {
 		c.done.Done()
 		c.refdone.Done()
@@ -113,7 +114,7 @@ func (c *tcpClientHandler) sender() {
 
 		for {
 			if c.isStopped() {
-				goto tcp_sender_exit_label
+				goto ws_sender_exit_label
 			}
 
 			c.sendcond.L.Lock()
@@ -124,8 +125,8 @@ func (c *tcpClientHandler) sender() {
 				readbytes, err = c.sendbox.ReadBinary(c.sendbox.Len())
 				if err != nil {
 					c.sendcond.L.Unlock()
-					vlog.Errorf("tcp handler error sendbuffer readbinary fail %s", err.Error())
-					goto tcp_sender_exit_label
+					vlog.Errorf("ws handler error sendbuffer readbinary fail %s", err.Error())
+					goto ws_sender_exit_label
 				}
 			}
 			if readbytes == nil {
@@ -145,18 +146,16 @@ func (c *tcpClientHandler) sender() {
 				}
 
 				if c.isStopped() {
-					goto tcp_sender_exit_label
+					goto ws_sender_exit_label
 				}
-
 				// c.conn.SetWriteDeadline(time.Now().Add(time.Millisecond * 50))
-				if nwrite, err = c.conn.Write(readbytes[offset:]); err != nil {
+				if nwrite, err = c.conn.NetConn().Write(readbytes[offset:]); err != nil {
 					// if e, ok := err.(net.Error); ok && e.Timeout() {
 					// 	goto tcp_sender_continue_label
 					// }
-
-					goto tcp_sender_exit_label
+					goto ws_sender_exit_label
 				}
-			// tcp_sender_continue_label:
+			// ws_sender_continue_label:
 				offset += nwrite
 				if offset == len(readbytes) {
 					break
@@ -168,7 +167,7 @@ func (c *tcpClientHandler) sender() {
 
 		}
 	}
-tcp_sender_exit_label:
+ws_sender_exit_label:
 	c.sendcond.L.Lock()
 	if !c.isStopped() {
 		close(c.stopper)
@@ -177,14 +176,13 @@ tcp_sender_exit_label:
 	c.conn.Close()
 }
 
-func (c *tcpClientHandler) reader() {
+func (c *wsClientHandler) reader() {
 	defer func() {
 		c.done.Done()
 		c.refdone.Done()
 	}()
 	c.mailbox <- &AcceptMessage{}
 
-	var tmp [512]byte
 	remoteAddr := c.conn.RemoteAddr()
 	for {
 
@@ -194,8 +192,7 @@ func (c *tcpClientHandler) reader() {
 		if c.keepalive > 0 {
 			c.conn.SetReadDeadline(time.Now().Add(time.Duration(c.keepalive) * time.Millisecond * 2.0))
 		}
-
-		n, err := c.conn.Read(tmp[:])
+		_, msg, err := c.conn.ReadMessage()
 		if err != nil {
 			if e, ok := err.(net.Error); ok && e.Timeout() {
 				c.keepaliveError++
@@ -208,10 +205,10 @@ func (c *tcpClientHandler) reader() {
 		}
 		c.keepaliveError = 0
 		rec := &RecviceMessage{
-			Data: make([]byte, n),
+			Data: make([]byte, len(msg)),
 			Addr: remoteAddr,
 		}
-		copy(rec.Data, tmp[:n])
+		copy(rec.Data, msg[:])
 		c.mailbox <- rec
 	}
 
@@ -227,7 +224,7 @@ func (c *tcpClientHandler) reader() {
 
 }
 
-func (c *tcpClientHandler) guardian() {
+func (c *wsClientHandler) guardian() {
 
 	defer func() {
 		c.guarddone.Done()
@@ -236,7 +233,7 @@ func (c *tcpClientHandler) guardian() {
 	for {
 		msg, ok := <-c.mailbox
 		if !ok {
-			goto tcp_guardian_exit_lable
+			goto ws_guardian_exit_lable
 		}
 
 		switch message := msg.(type) {
@@ -247,16 +244,16 @@ func (c *tcpClientHandler) guardian() {
 		case *PingMessage:
 			c.invoker.invokerPing()
 		case *ClosedMessage:
-			goto tcp_guardian_exit_lable
+			goto ws_guardian_exit_lable
 		default:
-			panic("tcp client guardian: unknown message")
+			panic("ws client guardian: unknown message")
 		}
 	}
-tcp_guardian_exit_lable:
+ws_guardian_exit_lable:
 	close(c.mailbox)
 	c.done.Wait()
 
-	// 释放资源
+	// // 释放资源
 	// c.sendbox.Close()
 	// c.sendbox = nil
 	// c.sendcond = nil
