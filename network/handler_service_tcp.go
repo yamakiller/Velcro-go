@@ -60,14 +60,27 @@ func (c *tcpClientHandler) PostMessage(b []byte) error {
 		c.sendcond.L.Unlock()
 		return err
 	}
+
 	c.sendcond.Signal()
 	c.sendcond.L.Unlock()
-
 	return nil
 }
 
 func (c *tcpClientHandler) PostToMessage(b []byte, target net.Addr) error {
-	return errors.New("client: undefine post to message")
+	c.sendcond.L.Lock()
+	if c.isStopped() {
+		c.sendcond.L.Unlock()
+		return errors.New("client: closed")
+	}
+	c.sendcond.Signal()
+	c.sendcond.L.Unlock()
+	rec := &RecviceMessage{
+		Data: make([]byte, len(b)),
+		Addr: target,
+	}
+	copy(rec.Data, b)
+	c.mailbox <- rec
+	return nil
 }
 
 func (c *tcpClientHandler) Close() {
@@ -83,7 +96,6 @@ func (c *tcpClientHandler) Close() {
 	c.sendcond.Signal()
 	c.sendcond.L.Unlock()
 
-	//c.guarddone.Wait()
 }
 
 func (c *tcpClientHandler) isStopped() bool {
@@ -149,15 +161,15 @@ func (c *tcpClientHandler) sender() {
 					goto tcp_sender_exit_label
 				}
 
-				c.conn.SetWriteDeadline(time.Now().Add(time.Millisecond * 50))
+				// c.conn.SetWriteDeadline(time.Now().Add(time.Millisecond * 50))
 				if nwrite, err = c.conn.Write(readbytes[offset:]); err != nil {
-					if e, ok := err.(net.Error); ok && e.Timeout() {
-						goto tcp_sender_continue_label
-					}
+					// if e, ok := err.(net.Error); ok && e.Timeout() {
+					// 	goto tcp_sender_continue_label
+					// }
 
 					goto tcp_sender_exit_label
 				}
-			tcp_sender_continue_label:
+			// tcp_sender_continue_label:
 				offset += nwrite
 				if offset == len(readbytes) {
 					break
@@ -212,7 +224,7 @@ func (c *tcpClientHandler) reader() {
 			Data: make([]byte, n),
 			Addr: remoteAddr,
 		}
-		copy(rec.Data,tmp[:n])
+		copy(rec.Data, tmp[:n])
 		c.mailbox <- rec
 	}
 
@@ -259,8 +271,8 @@ tcp_guardian_exit_lable:
 
 	// 释放资源
 	c.sendbox.Close()
-	c.sendbox = nil
-	c.sendcond = nil
+	// c.sendbox = nil
+	// c.sendcond = nil
 
 	c.invoker.invokerClosed()
 }
