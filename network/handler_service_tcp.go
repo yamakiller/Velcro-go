@@ -67,7 +67,20 @@ func (c *tcpClientHandler) PostMessage(b []byte) error {
 }
 
 func (c *tcpClientHandler) PostToMessage(b []byte, target net.Addr) error {
-	return errors.New("client: undefine post to message")
+	c.sendcond.L.Lock()
+	if c.isStopped() {
+		c.sendcond.L.Unlock()
+		return errors.New("client: closed")
+	}
+	c.sendcond.Signal()
+	c.sendcond.L.Unlock()
+	rec := &RecviceMessage{
+		Data: make([]byte, len(b)),
+		Addr: target,
+	}
+	copy(rec.Data, b)
+	c.mailbox <- rec
+	return nil
 }
 
 func (c *tcpClientHandler) Close() {
@@ -257,7 +270,7 @@ tcp_guardian_exit_lable:
 	c.done.Wait()
 
 	// 释放资源
-	// c.sendbox.Close()
+	c.sendbox.Close()
 	// c.sendbox = nil
 	// c.sendcond = nil
 

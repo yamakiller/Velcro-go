@@ -119,7 +119,7 @@ func (t *tcpNetworkServerModule) spawn(conn net.Conn) error {
 		sendcond:  sync.NewCond(&sync.Mutex{}),
 		keepalive: uint32(t.system.Config.Kleepalive),
 		invoker:   &ctx,
-		mailbox:   make(chan interface{}, 1),
+		mailbox:   make(chan interface{}, 32),
 		stopper:   make(chan struct{}),
 		refdone:   &t.waitGroup,
 	}
